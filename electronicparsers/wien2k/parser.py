@@ -215,25 +215,25 @@ class IncParser(TextParser):
         self._quantities = [
             Quantity(
                 'one_atom',
-                r'(.*NUMBER OF ORBITALS.*(?:\n\d+,-?\d+,\d+\s+\( N,KAPPA,OCCUP\))+)',
+                r'(.*NUMBER OF ORBITALS.*(?:\n.*\( N,KAPPA,OCCUP\))+)',
                 repeats=True,
                 sub_parser=TextParser(
                     quantities=[
                         Quantity(
+                            'occupancies',
+                            r'\d+, ?-?\d+,([0-9.]+)',
+                            repeats=True,
+                            dtype=float,
+                        ),
+                        Quantity(
                             'n_quantum_numbers',
-                            r'(\d+),-?\d+,[0-9.]+',
+                            r'(\d+), ?-?\d+,[0-9.]+',
                             repeats=True,
                             dtype=int,
                         ),
                         Quantity(
                             'kappas',
-                            r'\d+,(-?\d+),[0-9.]+',
-                            repeats=True,
-                            dtype=int,
-                        ),
-                        Quantity(
-                            'occupancies',
-                            r'\d+,-?\d+,([0-9.]+)',
+                            r'\d+, ?(-?\d+),[0-9.]+',
                             repeats=True,
                             dtype=int,
                         ),
@@ -1097,30 +1097,42 @@ class Wien2kParser:
             sec_method.k_mesh = sec_k_mesh
             sec_k_mesh.points = kpoints[0]
             sec_k_mesh.weights = kpoints[1]
-
+        print('first string')
         if self.inc_parser.mainfile:
             self.inc_parser.parse()
             atoms = self.inc_parser.get('one_atom')
+            print('second string')
             for atom_index, atom in enumerate(atoms):
                 kappas = atom.get('kappas')
                 n_quantum_numbers = atom.get('n_quantum_numbers')
                 occupancies = atom.get('occupancies')
                 number_of_orbitals = len(kappas)
+                print(atom_index, 'number of orbitals:', number_of_orbitals)
+                print('n_quantum_number', n_quantum_numbers)
+                print('kappas', kappas)
+                print('occupancies', occupancies)
                 for orbital in range(number_of_orbitals):
                     max_occupancy = abs(kappas[orbital] * 2)
-                    if occupancies[orbital] < max_occupancy:
+                    occupancy = int(occupancies[orbital])
+                    print('fourth string')
+                    print('occupancy first occurrence', occupancy)
+                    print('max occupancy', max_occupancy)
+                    if occupancy < max_occupancy:
                         if kappas[orbital] >= 0:
                             spin_quantum_number = -1
                         else:
                             spin_quantum_number = 1
-                        j_quantum_number = (
-                            -kappas[orbital] / spin_quantum_number - 1 / 2
-                        )
+                            j_quantum_number = (
+                                -kappas[orbital] / spin_quantum_number - 1 / 2
+                            )
                         l_quantum_number = j_quantum_number - (spin_quantum_number / 2)
-                        electrons_excited = max_occupancy - occupancies[orbital]
+                        electrons_excited = max_occupancy - occupancy
+                        print('occupancy', occupancy)
                         n_quantum_number = n_quantum_numbers[orbital]
                         atom_par = sec_method.atom_parameters
+                        print('atom_par', atom_par)
                         atom_obj = AtomParameters()
+                        print('atom_obj', atom_obj)
                         atom_obj.atom_index = atom_index
                         core_hole = CoreHole()
                         atom_obj.core_hole = core_hole
@@ -1128,10 +1140,10 @@ class Wien2kParser:
                         core_hole.l_quantum_number = l_quantum_number
                         core_hole.n_quantum_number = n_quantum_number
                         core_hole.n_electrons_excited = electrons_excited
-                        core_hole.occupation = occupancies[orbital]
+                        core_hole.occupation = occupancy
                         atom_index_arch = atom_par.append(atom_obj)
                         break
-
+                print('___________________')
         # basis
         if self.in1_parser.mainfile:
             self.in1_parser.parse()
