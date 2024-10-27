@@ -123,4 +123,4 @@ pip install -e "electronic-parsers[dev]"
 Running the parser now, will use the parser's Python code from the clone project.
 
 ## How to cite this work
-Ladines, A.N., Chang, T., Daelman, N., Fekete, A., Ghiringhelli, L.M., Himanen, L., Ilyas, A., Nakhaee, Ondračka, P., M. Pizarro, Rudzinski, J.F., & Scheidgen, M Atomistic Parsers [Computer software]. https://doi.org/10.5281/zenodo.13880705
+Ladines, A.N., Chang, T., Daelman, N., Fekete, A., Frodlová, J., Ghiringhelli, L.M., Himanen, L., Ilyas, A., Nakhaee, Ondračka, P., M. Pizarro, Rudzinski, J.F., & Scheidgen, M Atomistic Parsers [Computer software]. https://doi.org/10.5281/zenodo.13880705
