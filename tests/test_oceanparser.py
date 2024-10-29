@@ -21,6 +21,7 @@ import numpy as np
 
 from nomad.datamodel import EntryArchive
 from electronicparsers.ocean import OceanParser
+from electronicparsers.ocean.metainfo.ocean import x_ocean_screen_parameters
 
 
 def approx(value, abs=0, rel=1e-6):
@@ -61,8 +62,10 @@ def test_tio2(parser):
     assert sec_bse.core_hole.solver == 'Lanczos-Haydock'
     assert sec_bse.core_hole.mode == 'absorption'
     assert sec_bse.core_hole.broadening.to('eV').magnitude == approx(0.89)
+
     sec_ocean_screen = sec_method[-1].x_ocean_screen
-    assert sec_ocean_screen.m_mod_count == 22
+    for screen_param in x_ocean_screen_parameters.m_def.quantities:
+        assert sec_ocean_screen.m_is_set(screen_param)
     assert sec_ocean_screen.x_ocean_dft_energy_range == approx(150.0)
 
     # Calculation
