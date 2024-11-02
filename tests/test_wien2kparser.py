@@ -74,8 +74,8 @@ def test_eigenvalues(parser, caplog):
     archive = EntryArchive()
     parser.parse('tests/data/wien2k/eigenvalues/64k_8Rk_mBJkol.scf', archive, None)
 
-    assert len(caplog.records) == 1
-    assert 'Different number of eigenvalues' in caplog.records[0].msg
+    assert len(caplog.records) == 2
+    assert 'Different number of eigenvalues' in caplog.records[1].msg
 
     sec_eigenvalues = archive.run[0].calculation[0].eigenvalues[0]
     assert np.shape(sec_eigenvalues.energies[0][7]) == (314,)
@@ -95,8 +95,8 @@ def test_dos(parser, caplog):
     archive = EntryArchive()
     parser.parse('tests/data/wien2k/dos/CrO2-sp.scf', archive, None)
 
-    assert len(caplog.records) == 1
-    assert 'Different number of eigenvalues' in caplog.records[0].msg
+    assert len(caplog.records) == 2
+    assert 'Different number of eigenvalues' in caplog.records[1].msg
 
     sec_scc = archive.run[0].calculation[0]
 
@@ -137,3 +137,4 @@ def test_core_hole(parser, caplog):
     assert atom_par.core_hole.j_quantum_number == 1.5
     assert atom_par.core_hole.n_quantum_number == 2
     assert atom_par.core_hole.occupation == 3
+    assert atom_par.core_hole.dscf_state == 'final'

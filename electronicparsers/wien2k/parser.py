@@ -691,6 +691,7 @@ class Wien2kParser:
     def init_parser(self):
         self.out_parser.mainfile = self.filepath
         self.out_parser.logger = self.logger
+        self.inc_parser.logger = self.logger
 
     def get_wien2k_file(self, ext, multiple=False):
         paths = [p for p in os.listdir(self.maindir) if re.match(rf'.*{ext}$', p)]
@@ -1118,22 +1119,26 @@ class Wien2kParser:
                         j_quantum_number = (
                             -kappas[orbital] / spin_quantum_number - 1 / 2
                         )
+                        j_quantum_number = np.array([j_quantum_number])
                         l_quantum_number = j_quantum_number - (spin_quantum_number / 2)
                         electrons_excited = max_occupancy - occupancy
                         n_quantum_number = n_quantum_numbers[orbital]
                         atom_par = sec_method.atom_parameters
                         atom_obj = AtomParameters()
                         atom_obj.atom_index = atom_index
-                        core_hole = CoreHole()
-                        atom_obj.core_hole = core_hole
-                        j_quantum_number = np.array([j_quantum_number])
-                        core_hole.j_quantum_number = j_quantum_number
-                        core_hole.l_quantum_number = l_quantum_number
-                        core_hole.n_quantum_number = n_quantum_number
-                        core_hole.n_electrons_excited = electrons_excited
-                        core_hole.occupation = occupancy
+                        atom_obj.core_hole = CoreHole(
+                            j_quantum_number = j_quantum_number,
+                            l_quantum_number = l_quantum_number,
+                            n_quantum_number = n_quantum_number,
+                            n_electrons_excited = electrons_excited,
+                            occupation = occupancy,
+                            dscf_state = 'final',
+                        )
                         atom_par.append(atom_obj)
                         break
+        else:
+            self.logger.warning("inc file is missing, no corehole information "
+                                "will be parsed if corehole present.")
         # basis
         if self.in1_parser.mainfile:
             self.in1_parser.parse()
